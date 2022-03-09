@@ -1,0 +1,101 @@
+.banner {
+    width: 100%;
+    height: 100vh;
+    margin: auto;
+    // text-align: center;
+    // vertical-align: middle;
+    background-image: url("images/banner49.png");
+    background-size: cover; /* or contain depending on what you want */
+    background-position: center center;
+    background-repeat: no-repeat;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+
+    //    -ms-flex-align: center;
+    // -webkit-align-items: center;
+    //    -webkit-box-align: center;
+
+       align-items: center;
+    // display: block;
+
+    @include tablet {
+        height: 100vh;
+        background-position: center center;
+        background-image: url("images/banner-mob-new.png");
+        // flex-direction: column;
+    }
+}
+
+.banner-desc {
+    display: inline-flex;
+    // align-items: center;
+    // justify-content: center;
+    flex-direction: column;
+    padding: 5rem;
+    margin-top: 5rem;
+    flex-basis: 100%;
+    
+
+    @include tablet {
+        padding: 5rem 0;
+        align-items: center;
+        justify-content: center;
+        margin-top: 22rem;
+    }
+
+    h1 {
+        font-size: 5.8rem;
+        margin-bottom: 1rem;
+        width: 80%;
+        // text-align: center;
+        color: #1a1a1a;
+
+        @include tablet {
+            width: 100%;
+            font-size: 3.5rem;
+            text-align: center;
+            margin: 0;
+        }
+    }
+
+    p {
+        font-size: 2.5rem;
+        color: #1a1a1a;
+        text-shadow: 0.6px 0.6px #1a1a1a;
+        @include tablet {
+            width: 100%;
+            font-size: 1.45rem;
+            text-align: center;
+        }
+    }
+
+    hr {
+        width: 50%;
+        color: #1a1a1a;
+        border-top: 1px solid rgb(26, 26, 26);
+    }
+
+    a {
+        width: 200px;
+
+        @include tablet {
+            margin-top: -15px;
+        }
+    }
+}
+
+.banner-img {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    flex-basis: 50%;
+    overflow: hidden;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: translateX(5rem)
+    }
+}

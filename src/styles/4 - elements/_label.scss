@@ -1,0 +1,44 @@
+label {
+    font-size: $font-medium;
+    // font-weight: bold;
+    // background: $border-color;
+    // border: 1px solid $border-color-focus;
+    // padding: $s-size $m-size;
+    display: inline-block;
+    position: relative;
+    
+}
+
+.label-modal {
+    font-size: $font-large;
+    border: none;
+    background: none;
+    color: #4a4a4a;
+    border: none;
+
+    &:hover {
+        
+        background: none;
+    }
+
+    .error {
+        color: rgb(235, 43, 43) !important;
+    }
+}
+
+.label-input {
+    border: none;
+    background: none;
+    padding: 1rem 1.2rem;
+    color: #696868;
+    border: none;
+    font-size: $font-medium;
+
+    &:hover {
+        background: none;
+    }
+}
+
+.label-error {
+    color: rgb(235, 43, 43) !important;
+}
