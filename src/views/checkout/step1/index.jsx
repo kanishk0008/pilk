@@ -11,7 +11,7 @@ import { StepTracker } from '../components';
 import withCheckout from '../hoc/withCheckout';
 import { Field, Form, Formik } from 'formik';
 import { CustomInput, CustomMobileInput } from 'components/formik';
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 import { HEADLINE_OFFER } from 'constants/constants';
 import firebase from 'services/firebase';
 import { Modal, Button } from "react-bootstrap";
@@ -176,7 +176,8 @@ const OrderSummary = ({ basket, subtotal }) => {
   console.log("SUBTOTAL " + subtotal + " " + subTotal)
 
   useEffect(() => {
-    ReactGA.pageview("/checkout/step1")
+    // ReactGA.pageview("/checkout/step1")
+    ReactGA.send({ hitType: "pageview", page: "/checkout/step1"});
     if(subTotal == "") {
       setSubTotal(subtotal)
     }

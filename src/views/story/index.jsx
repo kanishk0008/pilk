@@ -1,6 +1,6 @@
 import { MessageDisplay } from 'components/common';
 import { useDocumentTitle, useFeaturedProducts, useScrollTop } from 'hooks';
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 import React from 'react';
 import { HEADLINE_OFFER } from 'constants/constants';
 
@@ -8,7 +8,9 @@ const Story = () => {
   useDocumentTitle('Our Story | Pilk');
   useScrollTop();
 
-  ReactGA.pageview("/our-story")
+  ReactGA.send({ hitType: "pageview", page: "/our-story"});
+
+  // ReactGA.pageview("/our-story")
 
   return (
     <main className="content">

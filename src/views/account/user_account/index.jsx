@@ -4,6 +4,7 @@ import { useDocumentTitle, useScrollTop } from 'hooks';
 import React, { lazy, Suspense } from 'react';
 import UserTab from '../components/UserTab';
 import { HEADLINE_OFFER } from 'constants/constants';
+import ReactGA from 'react-ga4';
 
 const UserAccountTab = lazy(() => import('../components/UserAccountTab'));
 const UserWishListTab = lazy(() => import('../components/UserWishListTab'));
@@ -19,6 +20,8 @@ const Loader = () => (
 const UserAccount = () => {
   useScrollTop();
   useDocumentTitle('My Account | Pilk');
+
+  ReactGA.send({ hitType: "pageview", page: "/account"});
 
   return (
     <>

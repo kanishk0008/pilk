@@ -1,6 +1,6 @@
 import { MessageDisplay } from 'components/common';
 import { useDocumentTitle, useFeaturedProducts, useScrollTop } from 'hooks';
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 import React from 'react';
 import { HEADLINE_OFFER } from 'constants/constants';
 
@@ -8,7 +8,8 @@ const ShipnRefund = () => {
   useDocumentTitle('Shipping and Refunds | Pilk');
   useScrollTop();
 
-  ReactGA.pageview("/shipnrefund")
+  ReactGA.send({ hitType: "pageview", page: "/shipnrefund"});
+  // ReactGA.pageview("/shipnrefund")
 
   return (
     <main className="content">

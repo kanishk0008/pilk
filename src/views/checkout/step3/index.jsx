@@ -25,7 +25,7 @@ import { initializeApp } from 'firebase/app';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { clearBasket } from 'redux/actions/basketActions';
 import useRazorpay, { RazorpayOptions } from "react-razorpay";
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 // import Razorpay from 'razorpay';
 
 const FormSchema = Yup.object().shape({
@@ -68,7 +68,8 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
 
   useEffect(() => {
     setTimeout(() => onConfirm(), 100);
-    ReactGA.pageview("/checkout/step3")
+    // ReactGA.pageview("/checkout/step3")
+    ReactGA.send({ hitType: "pageview", page: "/checkout/step3"});
 	}, []);	
 
   const { coupon, validCoupon } = useSelector((state) => ({

@@ -14,7 +14,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useParams, useHistory } from 'react-router-dom';
 import Select from 'react-select';
 import { select } from 'redux-saga/effects';
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 import { Home } from 'views';
 import CountdownTimer from 'components/common/CountdownTimer';
 
@@ -44,7 +44,7 @@ const ViewProduct = () => {
   useScrollTop();
   useDocumentTitle(`View ${product?.name || 'Item'}`);
 
-  ReactGA.pageview("/product/pilk-original");
+  
 
   var showDel = false
   
@@ -64,7 +64,7 @@ const ViewProduct = () => {
   const colorOverlay = useRef(null);
 
   useEffect(() => {
-    ReactGA.pageview("/product/pilk-original")
+    ReactGA.send({ hitType: "pageview", page: "/product/pilk-original"});
     setSelectedImage(product?.image);
     setSelectedSize(12);
     if (productPrice === 0 && product?.price != undefined) {

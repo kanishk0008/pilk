@@ -1,6 +1,6 @@
 import { MessageDisplay } from 'components/common';
 import { useDocumentTitle } from 'hooks';
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 import React from 'react';
 import { HEADLINE_OFFER } from 'constants/constants';
 
@@ -8,7 +8,8 @@ const TnC = () => {
   useDocumentTitle('Terms and Conditions | Pilk');
   // useScrollTop();
 
-  ReactGA.pageview("/terms-conditions")
+  ReactGA.send({ hitType: "pageview", page: "/terms-conditions"});
+  // ReactGA.pageview("")
 
   return (
     <main className="content">

@@ -7,11 +7,15 @@ import { PersistGate } from 'redux-persist/integration/react';
 import AppRouter from 'routers/AppRouter';
 import { useDispatch, useSelector } from 'react-redux';
 
-import ReactGA from 'react-ga';
+// import ReactGA from 'react-ga';
+import reactGA from 'react-ga4';
 
-const trackingId = "UA-183232535-1"; // Replace with your Google Analytics tracking ID
-ReactGA.initialize(trackingId);
+// const trackingId = "UA-183232535-1"; // Replace with your Google Analytics tracking ID
+// ReactGA.initialize(trackingId);
 
+
+const ga4Id = "G-SHRL8TCM2X"; // Replace with your Google Analytics tracking ID
+reactGA.initialize(ga4Id);
 
 
 const App = ({ store, persistor }) => {

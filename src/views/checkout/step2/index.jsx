@@ -18,7 +18,7 @@ import ShippingForm from './ShippingForm';
 import ShippingTotal from './ShippingTotal';
 import { ZIPCODES } from 'constants/constants';
 import { Modal, Button } from "react-bootstrap";
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 import { HEADLINE_OFFER } from 'constants/constants';
 import { setZipcode } from 'redux/actions/miscActions';
 
@@ -63,7 +63,8 @@ const ShippingDetails = ({ profile, shipping, subtotal }) => {
 
   useEffect(() => {
     console.log("AUTH ")
-    ReactGA.pageview("/checkout/step2")
+    // ReactGA.pageview("/checkout/step2")
+    ReactGA.send({ hitType: "pageview", page: "/checkout/step2"});
 	}, []);
 
   const initFormikValues = {

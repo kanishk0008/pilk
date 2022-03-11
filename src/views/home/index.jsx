@@ -38,7 +38,7 @@ import ecoFriendly from 'images/eco-friendly.png';
 import { ZIPCODES, smallEmails, trackingIds, emails, HEADLINE_OFFER } from 'constants/constants';
 
 import firebase from "services/firebase";
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 import { setZipcode } from 'redux/actions/miscActions';
 import copy from "copy-to-clipboard";
 
@@ -150,7 +150,8 @@ const Home = () => {
 		if ((offerModal == "" || offerModal == undefined) && !show) {
     	setTimeout(() => setShow(true), 1000);
 		}
-		ReactGA.pageview("/")
+		// ReactGA.pageview("/")
+		ReactGA.send({ hitType: "pageview", page: "/"});
 
 		const redirect  = window.sessionStorage.getItem('redirect')
 		if (redirect != "") {

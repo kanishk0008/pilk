@@ -15,10 +15,11 @@ import { CHECKOUT_STEP_1 } from 'constants/routes';
 
 // import './fonts/VisbyRoundCF-DemiBold.otf';
 
-import ReactGA from 'react-ga';
+// import ReactGA from 'react-ga';
+// import reactGA from 'react-ga4';
 
-const trackingId = "G-2P8PXKG1BS"; // Replace with your Google Analytics tracking ID
-ReactGA.initialize(trackingId);
+// const trackingId = "G-2P8PXKG1BS"; // Replace with your Google Analytics tracking ID
+// ReactGA.initialize(trackingId);
 
 
 WebFont.load({

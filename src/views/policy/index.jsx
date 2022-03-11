@@ -1,6 +1,6 @@
 import { MessageDisplay } from 'components/common';
 import { useDocumentTitle } from 'hooks';
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 import React from 'react';
 import { HEADLINE_OFFER } from 'constants/constants';
 
@@ -8,7 +8,8 @@ const Policy = () => {
   useDocumentTitle('Privacy Policy | Pilk');
   // useScrollTop();
 
-  ReactGA.pageview("/privacy-policy")
+  ReactGA.send({ hitType: "pageview", page: "/privacy-policy"});
+  // ReactGA.pageview("/privacy-policy")
 
   return (
     <main className="content">
