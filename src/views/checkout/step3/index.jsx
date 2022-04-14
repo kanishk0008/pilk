@@ -80,10 +80,17 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
   const onConfirm = () => {
     setShow(true)
     var discount = 0
+    var bypasPayment = false
     if(coupon["code"] != undefined && coupon["discount"] != undefined && validCoupon["status"] == "valid") {
       if(coupon["discount_type"] == "pc") {
         discount = (subtotal * coupon["discount"])/100
       }
+      console.log("BYPAS PAYMNT " + bypasPayment + " " + coupon["code"])
+      if(coupon["code"] == "PILK100X") {
+        bypasPayment = true
+        setShow(false)
+      }
+
     }
     const payment_amount = Math.round(((subtotal - discount) * 100) * 100) / 100;
     const self = this;
@@ -91,6 +98,91 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
     const url = "https://us-central1-"+projectId+".cloudfunctions.net/rzp-create-order";
     
     const body = {'amount': payment_amount}
+
+    console.log("BYPAS PAYMNT " + bypasPayment + " " + coupon["code"])
+
+    if (bypasPayment) {
+      const order = {"payment_id": "100xpayment"}
+          order["name"] = shipping.fullname
+          order["email"] = shipping.email
+          order["address"] = shipping.flat + ", " + shipping.area + ", " + shipping.city + ", " + shipping.state
+          order["pincode"] = shipping.pincode
+          order["phone"] = "+"+shipping.mobile.value
+          order["product_id"] = prod.id
+          order["product_name"] = prod.name
+          order["created_date"] = Date.now()
+          order["fulfillment_date"] = new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now())
+          order["fulfillment_ts"] = Date.now()
+          order["order_id"] = "100xorder"
+          order["total_quantity"] = prod.selectedSize
+          order["quantity"] = prod.selectedSize
+          if (coupon["code"] != undefined && coupon["discount"] != undefined && validCoupon["status"] == "valid") {
+            order["coupon_id"] = coupon["id"]
+            order["coupon"] = coupon["code"]
+            order["discount"] = coupon["discount"]
+
+            if(firebase.auth.currentUser) {
+              firebase.setCouponForUser(coupon["id"], coupon)
+            }
+          }
+          if (prod.selectedSize == 24) {
+            order["quantity"] = 12
+            const order2 = Object.assign({}, order)
+            order2["fulfillment_date"] = new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now() + frtenDayInterval)
+            order2["fulfillment_ts"] = Date.now() + frtenDayInterval
+            dispatch(createOrder(order2));
+          } else if (prod.selectedSize == 36) {
+            order["quantity"] = 12
+            const order2 = Object.assign({}, order)
+            order2["fulfillment_date"] = new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now() + tenDayInterval)
+            order2["fulfillment_ts"] = Date.now() + tenDayInterval
+            dispatch(createOrder(order2));
+
+            const order3 = Object.assign({}, order)
+            order3["fulfillment_date"] = new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now() + twntDayInterval)
+            order3["fulfillment_ts"] = Date.now() + twntDayInterval
+            dispatch(createOrder(order3));
+          } else if (prod.selectedSize == 48) {
+            order["quantity"] = 12
+            const order2 = Object.assign({}, order)
+            order2["fulfillment_date"] = new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now() + sevenDayInterval)
+            order2["fulfillment_ts"] = Date.now() + sevenDayInterval
+            dispatch(createOrder(order2));
+
+            const order3 = Object.assign({}, order)
+            order3["fulfillment_date"] = new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now() + frtenDayInterval)
+            order3["fulfillment_ts"] = Date.now() + frtenDayInterval
+            dispatch(createOrder(order3));
+
+            const order4 = Object.assign({}, order)
+            order4["fulfillment_date"] = new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now() + twnt1DayInterval)
+            order4["fulfillment_ts"] = Date.now() + twnt1DayInterval
+            dispatch(createOrder(order4));
+          }
+
+          const msg = {"subject": "Pilk Order Confirmed"}
+          msg["text"] = getEmailTemplate("100X Order")
+          msg["html"] = getEmailTemplate("100X Order")
+          const mail = {"to": shipping.email}
+          mail["message"] = msg
+
+          ReactGA.event({
+            category: "CHECKOUT 3",
+            action: "PAYMENT SUCCESS",
+            label: "ORDER CONFIRMED", 
+            value: 5
+          })
+
+          dispatch(createOrder(order));
+          dispatch(confirmOrder(order))
+          dispatch(sendEmail(mail))
+          dispatch(applyCoupon({}))
+          dispatch(applyCouponSuccess({"status":"invalid"}))
+          dispatch(validCouponSuccess({"status":"invalid"}))
+          dispatch(clearBasket())
+
+          history.push(ORDER_STATUS)
+    } else {
 
     fetch(url, {
       method: 'post',
@@ -184,6 +276,76 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
             value: 5
           })
 
+          const fname = shipping.fullname.split(' ')[0]
+
+          var lname = "."
+          if (shipping.fullname.split(' ').count > 0) {
+            lname = shipping.fullname.split(' ')[1]
+          }
+
+          const shprkt_body = { "order_id": data.id,
+          "order_date": new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now()),
+          "pickup_location": "Hermes Pickup",
+          "channel_id": "",
+          "comment": "Website Order",
+          "billing_customer_name": fname,
+          "billing_last_name": lname,
+          "billing_address": shipping.flat,
+          "billing_address_2": shipping.area,
+          "billing_city": shipping.city,
+          "billing_pincode": shipping.pincode,
+          "billing_state": shipping.state,
+          "billing_country": "India",
+          "billing_email": shipping.email,
+          "billing_phone": "9876543210",
+          "shipping_is_billing": true,
+          "shipping_customer_name": "",
+          "shipping_last_name": "",
+          "shipping_address": "",
+          "shipping_address_2": "",
+          "shipping_city": "",
+          "shipping_pincode": "",
+          "shipping_country": "",
+          "shipping_state": "",
+          "shipping_email": "",
+          "shipping_phone": "",
+          "order_items": [
+            {
+              "name": prod.name,
+              "sku": "Pilk Original " + order["quantity"],
+              "units": order["quantity"],
+              "selling_price": payment_amount,
+              "discount": "",
+              "tax": "",
+              "hsn": 22029990
+            }
+          ],
+          "payment_method": "Prepaid",
+          "shipping_charges": 0,
+          "giftwrap_charges": 0,
+          "transaction_charges": 0,
+          "total_discount": 0,
+          "sub_total": 9000,
+          "length": 10,
+          "breadth": 15,
+          "height": 20,
+          "weight": 2.5}
+          fetch("https://apiv2.shiprocket.in/v1/external/orders/create/adhoc", {
+            method: 'post',
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+              "Authorization": "Bearer " + process.env.SHPRKT_TKN
+            },
+            body: JSON.stringify(body)
+          })
+          .then(resp =>  resp.json())
+          .then(function (data) {
+
+          })
+          .catch(function (error) {
+            console.log('Request failed', error);
+          });
+
           dispatch(createOrder(order));
           dispatch(confirmOrder(order))
           dispatch(sendEmail(mail))
@@ -214,115 +376,8 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
     .catch(function (error) {
       console.log('Request failed', error);
     });
+  }
 
-
-    // fetch(url, {
-    //       method: 'post',
-    //       headers: {
-    //         "Content-type": "application/json; charset=UTF-8"
-    //       },
-    //       body: JSON.stringify(body)
-    //     })
-    //     .then(resp =>  resp.json())
-    //     .then(function (data) {
-    //       console.log('Request succeeded with JSON response', data);
-    //       setShow(false)
-    //       const options = {
-    //         key: rzp_key,
-    //         amount: payment_amount,
-    //         order_id: data.id,
-    //         name: 'Pilk - Payments',
-    //         description: 'The Plant Milk',
-      
-    //         handler(response) {
-    //           const paymentId = response.razorpay_payment_id;
-    //           // const url = process.env.URL+'/api/v1/rzp_capture/'+paymentId+'/'+payment_amount;
-    //           const order = {"payment_id": paymentId}
-    //           order["name"] = shipping.fullname
-    //           order["email"] = shipping.email
-    //           order["address"] = shipping.flat + ", " + shipping.area + ", " + shipping.city + ", " + shipping.state
-    //           order["pincode"] = shipping.pincode
-    //           order["phone"] = "+"+shipping.mobile.value
-    //           order["product_id"] = prod.id
-    //           order["product_name"] = prod.name
-    //           order["created_date"] = Date.now()
-    //           order["fulfillment_date"] = new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now())
-    //           order["fulfillment_ts"] = Date.now()
-    //           order["order_id"] = data.id
-    //           order["total_quantity"] = prod.selectedSize
-    //           order["quantity"] = prod.selectedSize
-    //           if (coupon != undefined && coupon.code != undefined) {
-    //             order["coupon"] = coupon.code
-    //             order["discount"] = coupon.discount
-    //           }
-    //           if (prod.selectedSize == 24) {
-    //             order["quantity"] = 12
-    //             const order2 = Object.assign({}, order)
-    //             order2["fulfillment_date"] = new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now() + frtenDayInterval)
-    //             order2["fulfillment_ts"] = Date.now() + frtenDayInterval
-    //             dispatch(createOrder(order2));
-    //           } else if (prod.selectedSize == 36) {
-    //             order["quantity"] = 12
-    //             const order2 = Object.assign({}, order)
-    //             order2["fulfillment_date"] = new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now() + tenDayInterval)
-    //             order2["fulfillment_ts"] = Date.now() + tenDayInterval
-    //             dispatch(createOrder(order2));
-
-    //             const order3 = Object.assign({}, order)
-    //             order3["fulfillment_date"] = new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now() + twntDayInterval)
-    //             order3["fulfillment_ts"] = Date.now() + twntDayInterval
-    //             dispatch(createOrder(order3));
-    //           } else if (prod.selectedSize == 48) {
-    //             order["quantity"] = 12
-    //             const order2 = Object.assign({}, order)
-    //             order2["fulfillment_date"] = new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now() + sevenDayInterval)
-    //             order2["fulfillment_ts"] = Date.now() + sevenDayInterval
-    //             dispatch(createOrder(order2));
-
-    //             const order3 = Object.assign({}, order)
-    //             order3["fulfillment_date"] = new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now() + frtenDayInterval)
-    //             order3["fulfillment_ts"] = Date.now() + frtenDayInterval
-    //             dispatch(createOrder(order3));
-
-    //             const order4 = Object.assign({}, order)
-    //             order4["fulfillment_date"] = new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now() + twnt1DayInterval)
-    //             order4["fulfillment_ts"] = Date.now() + twnt1DayInterval
-    //             dispatch(createOrder(order4));
-    //           }
-
-    //           const msg = {"subject": "Pilk Order Confirmed"}
-    //           msg["text"] = getEmailTemplate(data.id)
-    //           msg["html"] = getEmailTemplate(data.id)
-    //           const mail = {"to": shipping.email}
-    //           mail["message"] = msg
-
-    //           dispatch(createOrder(order));
-    //           dispatch(confirmOrder(order))
-    //           dispatch(sendEmail(mail))
-    //           dispatch(applyCoupon({}))
-    //           dispatch(clearBasket())
-    //           history.push(ORDER_STATUS)
-    //         },
-      
-    //         prefill: {
-    //           name: shipping.fullname,
-    //           email: shipping.email,
-    //           contact: "+"+shipping.mobile.value
-    //         },
-    //         notes: {
-    //           address: shipping.city,
-    //         },
-    //         theme: {
-    //           color: '#5780e5',
-    //         },
-    //       };
-    //       const rzp1 = new window.Razorpay(options);
-          
-    //       rzp1.open();
-    //     })
-    //     .catch(function (error) {
-    //       console.log('Request failed', error);
-    //     });
   };
 
   const getEmailTemplate = (orderId) => {
@@ -366,7 +421,7 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
               '<table align="center" border="0" cellpadding="0" cellspacing="0" width="600">' + 
               '<tr>' + 
               '<td align="center" valign="top" width="600">' + 
-              ' <table border=0 cellpadding=0 cellspacing=0 width=100% style="max-width: 600px;" bgcolor=" #fff5c4"><tr> <td align=left style="padding: 24px; font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-left: 3px solid #5780E5; border-right: 3px solid #5780E5;"> <p style="margin: 0;">Your order will be delivered within 2 days. Here is a summary of your recent order. If you have any questions or concerns about your order, please reply.</p> </td> </tr>  <tr> <td align=left style="padding: 24px; font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-left: 3px solid #5780E5; border-right: 3px solid #5780E5;"> <table border=0 cellpadding=0 cellspacing=0 width=100%> <tr> <td align=left bgcolor=#5780E5 width=75% style="padding: 12px;font-family: ' + "'Source Sans Pro'"  + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;"><strong>Order Id</strong></td> <td align=left bgcolor=#5780E5 width=25% style="padding: 12px;font-family: '+ "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;"><strong>'+ orderId + '</strong></td> </tr> <tr> <td align=left width=75% style="padding: 6px 12px;font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">'+ "Pilk Original - "+ prod.selectedSize + ' bottles' + '</td> <td align=left width=25% style="padding: 6px 12px;font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;"> ' + displayMoney(subtotal) + '</td> </tr> <tr> <td align=left width=75% style="padding: 6px 12px;font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">Shipping</td> <td align=left width=25% style="padding: 6px 12px;font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">0.00</td> </tr> <tr> <td align=left width=75% style="padding: 12px; font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-top: 2px dashed #D2C7BA; border-bottom: 2px dashed #D2C7BA;"><strong>Total</strong></td> <td align=left width=25% style="padding: 12px; font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-top: 2px dashed #D2C7BA; border-bottom: 2px dashed #D2C7BA;"><strong>' + displayMoney(subtotal) +' </strong></td> </tr> </table> </td> </tr>  </table> ' + 
+              ' <table border=0 cellpadding=0 cellspacing=0 width=100% style="max-width: 600px;" bgcolor=" #fff5c4"><tr> <td align=left style="padding: 24px; font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-left: 3px solid #5780E5; border-right: 3px solid #5780E5;"> <p style="margin: 0;">Your order will be delivered within 3-4 days. Here is a summary of your recent order. If you have any questions or concerns about your order, please reply.</p> </td> </tr>  <tr> <td align=left style="padding: 24px; font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-left: 3px solid #5780E5; border-right: 3px solid #5780E5;"> <table border=0 cellpadding=0 cellspacing=0 width=100%> <tr> <td align=left bgcolor=#5780E5 width=75% style="padding: 12px;font-family: ' + "'Source Sans Pro'"  + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;"><strong>Order Id</strong></td> <td align=left bgcolor=#5780E5 width=25% style="padding: 12px;font-family: '+ "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;"><strong>'+ orderId + '</strong></td> </tr> <tr> <td align=left width=75% style="padding: 6px 12px;font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">'+ "Pilk Original - "+ prod.selectedSize + ' bottles' + '</td> <td align=left width=25% style="padding: 6px 12px;font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;"> ' + displayMoney(subtotal) + '</td> </tr> <tr> <td align=left width=75% style="padding: 6px 12px;font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">Shipping</td> <td align=left width=25% style="padding: 6px 12px;font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">0.00</td> </tr> <tr> <td align=left width=75% style="padding: 12px; font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-top: 2px dashed #D2C7BA; border-bottom: 2px dashed #D2C7BA;"><strong>Total</strong></td> <td align=left width=25% style="padding: 12px; font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-top: 2px dashed #D2C7BA; border-bottom: 2px dashed #D2C7BA;"><strong>' + displayMoney(subtotal) +' </strong></td> </tr> </table> </td> </tr>  </table> ' + 
               '</td>' + 
               '</tr>' + 
               '</table>' + 

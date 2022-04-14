@@ -119,6 +119,10 @@ const AppRouter = () => {
           component={view.OrderStatus}
           path={ROUTES.ORDER_STATUS}
         />
+        <ClientRoute
+          component={view.ReferNEarn}
+          path={ROUTES.REFER_EARN}
+        />
         <AdminRoute
           component={view.Dashboard}
           exact

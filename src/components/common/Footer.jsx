@@ -27,7 +27,7 @@ const Footer = () => {
           </div>
           <div className="col-md-3 col-xs-3  order-sm-12">
     				<h3>Address</h3>
-    				<p >Ittina Soupernika Apt, Sarjapura Road, <br/> Kaikondrahally, Bangalore,<br/> Karnataka, 560035</p>
+    				<p >Vegannovative Solution Pvt Ltd <br/>Ittina Soupernika Apt, Sarjapura Road, <br/> Kaikondrahally, Bangalore,<br/> Karnataka, 560035</p>
             <br></br>
           </div>
           <div className="col-md-2 col-xs-2 align-items-center order-sm-12">

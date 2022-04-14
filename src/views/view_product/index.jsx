@@ -66,7 +66,7 @@ const ViewProduct = () => {
   useEffect(() => {
     ReactGA.send({ hitType: "pageview", page: "/product/pilk-original"});
     setSelectedImage(product?.image);
-    setSelectedSize(12);
+    setSelectedSize(4);
     if (productPrice === 0 && product?.price != undefined) {
       productPrice = product?.price
     }
@@ -322,7 +322,7 @@ const ViewProduct = () => {
                   </label>
               </div>
               </div>
-              <span className="text-subtle"><br/><h3>FREE Delivery within 3 days!</h3></span>
+              <span className="text-subtle"><br/><h3>FREE Delivery within 3-4 days!</h3></span>
               <h1><ins>{ displayMoney(productPrice)}</ins> {showDel && <del>{ displayMoney(selectedSize * product.price)}</del> } <br/> {showDel && <span>(Save {displayMoney(saveAmount)})</span>}</h1>
               <div className="product-modal-action">
                 <button

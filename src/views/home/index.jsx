@@ -8,15 +8,16 @@ import {
 import React , { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Redirect, Link, useHistory, useLocation } from 'react-router-dom';
-import { Modal, Button, Form, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { Modal, Button, Form, OverlayTrigger, Tooltip, Carousel } from "react-bootstrap";
 import CountdownTimer from 'components/common/CountdownTimer';
 
 import { sendEmail } from 'redux/actions/orderActions';
+import { displayMoney } from 'helpers/utils';
 
 import crops from 'images/pilk-crops.png';
 import pot from 'images/pilk-pot.png';
 import plastic from 'images/pilk-recycle.png';
-// import natural from 'images/pilk-natural.png';
+import bannerImg from 'images/pilkoriginalbanner.png';
 
 
 import yummy1 from 'images/pilk-man-yummy.png';
@@ -79,7 +80,15 @@ const Home = () => {
 
 	const handleClose = () => {
 		sessionStorage.setItem('offerModal', "closed");
-		setShow(false) };
+		// const msg = {"subject": "Pilk Order Confirmed"}
+		// 	msg["text"] = getOrderEmailTemplate()
+		// 	msg["html"] = getOrderEmailTemplate()
+		// 	const mail = {"to": "chehak@gmail.com"}
+		// 	mail["message"] = msg
+
+		// dispatch(sendEmail(mail))
+		setShow(false) 
+	};
 
 	const { zipcode } = useSelector((state) => ({
     zipcode: state.app.zipcode
@@ -107,7 +116,13 @@ const Home = () => {
 			setShowLabel1(true)
 		}
 
-		
+		// const msg = {"subject": "Track your Pilk Order"}
+		// 	msg["text"] = getOrderEmailTemplate()
+		// 	msg["html"] = getOrderEmailTemplate()
+		// 	const mail = {"to": "chehak@gmail.com"}
+		// 	mail["message"] = msg
+
+		// dispatch(sendEmail(mail))
 
 		// var i = 0;
 		// for(i=0; i< smallEmails.length; i++ ){
@@ -161,6 +176,79 @@ const Home = () => {
   	
 		
 	}, []);	
+
+	const getOrderEmailTemplate = () => {
+		return '<style type=text/css> @media screen { @font-face { font-family: "Source Sans Pro"; font-style: normal; font-weight: 400; src: local("Source Sans Pro Regular"), local("SourceSansPro-Regular"), url(https://fonts.gstatic.com/s/sourcesanspro/v10/ODelI1aHBYDBqgeIAH2zlBM0YzuT7MdOe03otPbuUS0.woff) format("woff");}' + 
+		 ' @font-face { font-family: "Source Sans Pro"; font-style: normal; font-weight: 700; src: local("Source Sans Pro Bold"), local("SourceSansPro-Bold"), url(https://fonts.gstatic.com/s/sourcesanspro/v10/toadOcfmlt9b38dHJxOBGFkQc6VGVFSmCnC_l7QZG60.woff) format("woff");}}' +
+			'body, table, td, a { -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }' + 
+			' table, td { mso-table-rspace: 0pt; mso-table-lspace: 0pt;} img { -ms-interpolation-mode: bicubic;}' +
+			' a[x-apple-data-detectors] { font-family: inherit !important; font-size: inherit !important; font-weight: inherit !important; line-height: inherit !important; color: inherit !important; text-decoration: none !important; }' +
+			' a {text-decoration: none !important; } div[style*="margin: 16px 0;"] { margin: 0 !important; } body { width: 100% !important; height: 100% !important; padding: 0 !important; margin: 0 !important; } table { border-collapse: collapse !important; } ' +
+		 ' a { color: #1a82e2; } img { height: auto; line-height: 100%; text-decoration: none; border: 0; outline: none; }' +
+			'</style></head> <body><div class=preheader style="display: none; max-width: 0; max-height: 0; overflow: hidden; font-size: 1px; line-height: 1px; color: #fff; opacity: 0;"> Your Pilk order is confirmed, please find the details below. </div> <table border=0 cellpadding=0 cellspacing=0 width=100%><tr> <td align=center> ' +
+			'<table align="center" border="0" cellpadding="0" cellspacing="0" width="600">' +
+						'<tr> ' +
+						'<td align="center" valign="top" width="600"> ' + 
+						'<table border=0 cellpadding=0 cellspacing=0 width=100% style="max-width: 600px;" bgcolor=" #fff5c4"> ' + 
+						'<tr> ' + 
+						'<td align=center valign=top style="border-top: 3px solid #5780E5;border-left: 3px solid #5780E5; border-right: 3px solid #5780E5;"> <a href=https://www.pilk.in target=_blank style="display: inline-block;"> <img src=https://firebasestorage.googleapis.com/v0/b/pilk-1.appspot.com/o/Pilk_tm_pilk%20blue.png?alt=media&token=f8008e29-1f7c-46f4-bcc6-819ae217b405 alt=Logo border=0 width=48 style="display: block; width: 125px; max-width: 125px; min-width: 48px;"> </a>' + 
+						'</td>' + 
+						' </tr> ' +  
+						'</table> '+ 
+						' </td>' +
+						'</tr>' +
+						'</table>' +
+						'</td> </tr> <tr> <td align=center>' +
+						'<table align="center" border="0" cellpadding="0" cellspacing="0" width="600">' +
+						'<tr>' +
+						'<td align="center" valign="top" width="600">' +
+						'<table border=0 cellpadding=0 cellspacing=0 width=100% style="max-width: 600px;" bgcolor=" #fff5c4"> <tr> <td align=center style="font-family: ' + "'Source Sans Pro'" + ' Helvetica, Arial, sans-serif; border-left: 3px solid #5780E5; border-right: 3px solid #5780E5;"> <img src=https://firebasestorage.googleapis.com/v0/b/pilk-1.appspot.com/o/order-confirmed.png?alt=media&amp;token=5ba06a7b-cca8-4322-9453-f88d64d37f25 alt=Pilk-confirmed border=0 style="display: block; max-width: 590px;"> </td> </tr> </table> ' +
+						'</td>' +
+						'</tr>' +
+						'</table>' +
+						'</td> </tr> <tr> <td align=center> ' +
+						'<table align="center" border="0" cellpadding="0" cellspacing="0" width="600">' +
+						'<tr>' +
+						'<td align="center" valign="top" width="600">' +
+						'<table border=0 cellpadding=0 cellspacing=0 width=100% style="max-width: 600px;" bgcolor=" #fff5c4"> <tr> <td align=left style="padding: 36px 24px 0; font-family: '+ " 'Source Sans Pro'" + ' Helvetica, Arial, sans-serif; border-left: 3px solid #5780E5; border-right: 3px solid #5780E5;"> <h1 style="margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -1px; line-height: 48px;">Thank you for your order!</h1> </td> </tr> </table> ' +
+						'</td>' +
+						'</tr>' +
+						'</table>' + 
+						'</td> </tr>  <tr> <td align=center> ' + 
+						'<table align="center" border="0" cellpadding="0" cellspacing="0" width="600">' + 
+						'<tr>' + 
+						'<td align="center" valign="top" width="600">' + 
+						' <table border=0 cellpadding=0 cellspacing=0 width=100% style="max-width: 600px;" bgcolor=" #fff5c4"><tr> <td align=left style="padding: 24px; font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-left: 3px solid #5780E5; border-right: 3px solid #5780E5;"> <p style="margin: 0;">Your order will be delivered within 4-5 days. Here is a summary of your recent order. If you have any questions or concerns about your order, please reply.</p> </td> </tr>  <tr> <td align=left style="padding: 24px; font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-left: 3px solid #5780E5; border-right: 3px solid #5780E5;"> <table border=0 cellpadding=0 cellspacing=0 width=100%> <tr> <td align=left bgcolor=#5780E5 width=75% style="padding: 12px;font-family: ' + "'Source Sans Pro'"  + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;"><strong>Order Details</strong></td> <td align=left bgcolor=#5780E5 width=25% style="padding: 12px;font-family: '+ "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;"><strong>' + '</strong></td> </tr> <tr> <td align=left width=75% style="padding: 6px 12px;font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">'+ "Pilk Original - "+ 12 + ' bottles' + '</td> <td align=left width=25% style="padding: 6px 12px;font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;"> ' + displayMoney(570.4) + '</td> </tr> <tr> <td align=left width=75% style="padding: 6px 12px;font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">Shipping</td> <td align=left width=25% style="padding: 6px 12px;font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">0.00</td> </tr> <tr> <td align=left width=75% style="padding: 12px; font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-top: 2px dashed #D2C7BA; border-bottom: 2px dashed #D2C7BA;"><strong>Total</strong></td> <td align=left width=25% style="padding: 12px; font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-top: 2px dashed #D2C7BA; border-bottom: 2px dashed #D2C7BA;"><strong>' + displayMoney(570.4) +' </strong></td> </tr> </table> </td> </tr>  </table> ' + 
+						'</td>' + 
+						'</tr>' + 
+						'</table>' + 
+						' </td> </tr>  <tr> <td align=center valign=top width=100%>' + 
+						'<table align="center" border="0" cellpadding="0" cellspacing="0" width="600">' + 
+						'<tr>' + 
+						'<td align="center" valign="top" width="600">' + 
+						'<table align=center border=0 cellpadding=0 cellspacing=0 width=100% style="max-width: 600px; border-left: 3px solid #5780E5; border-right: 3px solid #5780E5;" bgcolor=" #fff5c4"> <tr> <td align=center valign=top style="font-size: 0; border-bottom: 3px solid #5780E5"> ' + 
+						'<table align="center" border="0" cellpadding="0" cellspacing="0" width="590">' + 
+									'<tr>' + 
+									'<td align="left" valign="top" width="295">' + 
+									'<div style="display: inline-block; width: 100%; max-width: 50%; min-width: 240px; vertical-align: top;"> <table align=left border=0 cellpadding=0 cellspacing=0 width=100% style="max-width: 300px;"> <tr> <td align=left valign=top style="padding-bottom: 36px; padding-left: 36px; font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;"> <p><strong>Delivery Address</strong></p> <p>' + "A182, Dlf Trinity Towers, <br/> DLF PHASE 5, Gurgaon, <br/> 122002" + '</p> </td> </tr> </table> </div> ' + 
+									'</td>' +  
+									'<td align=""left" valign="top" width="295">' +  
+									'"<div style="display: inline-block; width: 100%; max-width: 50%; min-width: 240px; vertical-align: top;"> <table align=left border=0 cellpadding=0 cellspacing=0 width=100% style="max-width: 300px;"> <tr> <td align=left valign=top style="padding-bottom: 36px; padding-left: 36px; font-family: ' + "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;"> <p><strong>Billing Address</strong></p> <p>'  + "A182, Dlf Trinity Towers, <br/> DLF PHASE 5, Gurgaon, <br/> 122002"  + '</p> </td> </tr> </table> </div> ' + 
+									'</td>' + 
+									'</tr>' + 
+									'</table>' + 
+									'</td> </tr> </table> ' + 
+						'</td>' +
+						'</tr>' +
+						'</table>' +
+						'</td> </tr>  <tr> <td align=center style="padding: 24px; "> ' +
+						'<table align="center" border="0" cellpadding="0" cellspacing="0" width="600">' +
+						'<tr>' +
+						'<td align="center" valign="top" width="600">' +
+						'<table border=0 cellpadding=0 cellspacing=0 width=100% style="max-width: 600px;"> <tr> <td align=center style="padding: 12px 24px; font-family: ' + " 'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; color: #666;"> <p style="margin: 0;">You received this email because we received an order from your account. If you didn not order you can safely delete this email.</p> </td> </tr> '+
+						'<tr> <td align=center style="padding: 12px 24px; font-family: '+ "'Source Sans Pro'" + ', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; color: #666;"> <a href=https://www.pilk.in>www.pilk.in</a> </td> </tr>  </table> ' +
+						'</td> </tr> </table> </td> </tr> </table> </body> </html>' 
+}
 
 	const getEmailTemplate = (trackingId) => {
 		return '<style type=text/css> @media screen { @font-face { font-family: "Source Sans Pro"; font-style: normal; font-weight: 400; src: local("Source Sans Pro Regular"), local("SourceSansPro-Regular"), url(https://fonts.gstatic.com/s/sourcesanspro/v10/ODelI1aHBYDBqgeIAH2zlBM0YzuT7MdOe03otPbuUS0.woff) format("woff");}' + 
@@ -247,7 +335,49 @@ const Home = () => {
 				<p>{HEADLINE_OFFER}</p>
 			</div>
       <div className="home">
+			{/* <div className="banner">
+			<Carousel>
+				<Carousel.Item>
+					<img
+						className="d-block w-100"
+						src={bannerImg}
+						alt="First slide"
+					/>
+					<Carousel.Caption>
+						<h1 className="text-thin"><strong>Pilk - Plant M!lk</strong></h1>
+						<hr/>
+						<p>Complete Protein, Rich in Calcium, Vitamins A, D, B12   </p>
+						<p>Dairy & Lactose free</p>
+					</Carousel.Caption>
+				</Carousel.Item>
+				<Carousel.Item>
+					<img
+						className="d-block w-100"
+						src={bannerImg}
+						alt="Second slide"
+					/>
+
+					<Carousel.Caption>
+						<h3>Second slide label</h3>
+						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+					</Carousel.Caption>
+				</Carousel.Item>
+				<Carousel.Item>
+					<img
+						className="d-block w-100"
+						src={bannerImg}
+						alt="Third slide"
+					/>
+
+					<Carousel.Caption>
+						<h3>Third slide label</h3>
+						<p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
+					</Carousel.Caption>
+				</Carousel.Item>
+			</Carousel>
+			</div> */}
         <div className="banner">
+					
           <div className="banner-desc">
 						<p>
               Oats + Cowpeas + Moongs
@@ -261,11 +391,10 @@ const Home = () => {
               Complete Protein, Rich in Calcium, Vitamins A, D, B12
             </p>
 						<p>
-						Dairy & Lactose free
+						Dairy, Lactose & Cholesterol free
             </p>
 						 
 						<br/>
-            {/* <Link className="button"> */}
 						<Link onClick={onClickBuy} className="button">
               Order Now
             </Link>
@@ -411,6 +540,24 @@ const Home = () => {
 			</div>
 		</section>
 
+		<section>
+			<div className="container">
+				<div className = "row text-center align-items-center justify-content-center margin-top-l">
+					<h1>We are backed by</h1>
+    		</div>
+    		<div className = "row justify-content-center margin-top-m margin-bottom-l">
+
+					<div className='col-md-6 text-center align-items-center'>		
+						<img src='https://www.100x.vc/_next/image?url=https%3A%2F%2F100x-strapi-bucket.s3.ap-south-1.amazonaws.com%2FGroup_40_1c888b25fc.svg&w=1200&q=75' width='50%'/>
+					</div>
+					<div className='col-md-6 text-center align-items-center'>
+						<img src='https://gfi-india.org/wp-content/themes/gfi/images/logo-black.png' width='50%'/>
+					</div>
+					
+				</div>
+			</div>
+		</section>
+
     {/* <section className="rejuvenating_humans">
     	<div className="container">
     		<div className="row">
@@ -526,7 +673,7 @@ const Home = () => {
         </Modal.Header>
 				<Modal.Body>
 					<h1 className="text-center">Get 20% OFF on <br/>your first order!!</h1>
-					<span>Delivering all over Maharashtra</span><br/>
+					{/* <span>Delivering all over Maharashtra</span><br/> */}
 					{/* <form onSubmit={handleCodeClick}> */}
 					<OverlayTrigger
 						delay={{ hide: 450, show: 200 }}

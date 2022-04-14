@@ -104,6 +104,7 @@ const OrderSummary = ({ basket, subtotal }) => {
   // })
 
   var code;
+  var couponSub;
 
   if (coupon["code"] != undefined) {
     code = coupon["code"]
@@ -120,7 +121,9 @@ const OrderSummary = ({ basket, subtotal }) => {
           if(coupon["discount_type"] == "pc") {
             st = subtotal - (subtotal * coupon["discount"])/100
           }
-          setSubTotal(st)
+          couponSub = displayMoney(st) + " (" + coupon["discount"] + "% off)"
+          setSubTotal(couponSub)
+          
           setCouponApplied(true)
         } else if (validCoupon["status"] == "invalid"){
           if(!showCouponError && !couponModalClosed) {
@@ -264,7 +267,7 @@ const OrderSummary = ({ basket, subtotal }) => {
         
         <div className="basket-total text-right">
           <p className="basket-total-title">Subtotal:</p>
-          <h2 className="basket-total-amount">{displayMoney(subTotal)}</h2>
+          <h2 className="basket-total-amount">{ couponApplied ? subTotal : displayMoney(subTotal)}</h2>
         </div>
         <br />
         <div className="checkout-shipping-action">
@@ -292,10 +295,14 @@ const OrderSummary = ({ basket, subtotal }) => {
     </div>
 
     <Modal show={show} centered onHide={handleClose} className="text-center">
-				<Modal.Header closeButton className="text-center">
+				{/* <Modal.Header closeButton className="text-center">
           <Modal.Title>Please signin to apply coupon.</Modal.Title>
+        </Modal.Header> */}
+        <Modal.Header closeButton className="text-center">
         </Modal.Header>
         <Modal.Body>
+					<h2 className="text-center">Please signin to apply coupon.</h2>
+          <br/>
 					<form onSubmit={handleLogin}>
 							<Button variant="primary" type="submit">Login</Button>        
           </form>
@@ -303,15 +310,26 @@ const OrderSummary = ({ basket, subtotal }) => {
       </Modal>
 
       <Modal show={showCouponError} centered onHide={handleCloseCouponError} className="text-center">
-				<Modal.Header closeButton className="text-center">
+				{/* <Modal.Header closeButton className="text-center">
           <Modal.Title>Invalid Coupon Code. Please try a different code.</Modal.Title>
+        </Modal.Header> */}
+
+        <Modal.Header closeButton className="text-center">
         </Modal.Header>
+        <Modal.Body>
+					<h2 className="text-center">Invalid Coupon Code. Please try a different code.</h2>
+          </Modal.Body>
       </Modal>
 
       <Modal show={showCouponSuccess} centered onHide={handleCloseCouponSuccess} className="text-center">
-				<Modal.Header closeButton className="text-center">
+				{/* <Modal.Header closeButton className="text-center">
           <Modal.Title>YAY !! Coupon Applied Sucessfully.</Modal.Title>
+        </Modal.Header> */}
+        <Modal.Header closeButton className="text-center">
         </Modal.Header>
+        <Modal.Body>
+					<h2 className="text-center">YAY !! Coupon Applied Sucessfully.</h2>
+          </Modal.Body>
       </Modal>
 
       <Modal show={showLoader} centered className="text-center" backdrop="static">

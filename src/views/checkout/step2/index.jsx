@@ -7,7 +7,7 @@ import { Form, Formik } from 'formik';
 import { useDocumentTitle, useScrollTop } from 'hooks';
 import PropType from 'prop-types';
 import React, {useState, useEffect} from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { setShippingDetails } from 'redux/actions/checkoutActions';
 import { createCheckout } from 'redux/actions/orderActions';
@@ -61,6 +61,11 @@ const ShippingDetails = ({ profile, shipping, subtotal }) => {
 
   const handleClose = () => { setShow(false) };
 
+  const { coupon, validCoupon } = useSelector((state) => ({
+    coupon: state.order.coupon,
+    validCoupon: state.order.validCoupon
+  }));
+
   useEffect(() => {
     console.log("AUTH ")
     // ReactGA.pageview("/checkout/step2")
@@ -88,7 +93,8 @@ const ShippingDetails = ({ profile, shipping, subtotal }) => {
     order["price"] = subtotal
     order["created_date"] = Date.now()
     dispatch(createCheckout(order))
-    if (ZIPCODES.includes(parseInt(form.pincode))) {
+    console.log("COUPN " + coupon["code"] + " " + coupon["discount"] + " " + validCoupon["status"])
+    if (ZIPCODES.includes(parseInt(form.pincode)) || (coupon["code"] == "PILK100X" && coupon["discount"] != undefined && validCoupon["status"] == "valid") ) {
 
       ReactGA.event({
         category: "CHECKOUT 2",

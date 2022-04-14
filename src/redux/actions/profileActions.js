@@ -1,5 +1,6 @@
 import {
   CLEAR_PROFILE,
+  GEN_REFER_CODE,
   SET_PROFILE,
   UPDATE_EMAIL,
   UPDATE_PROFILE,
@@ -36,3 +37,7 @@ export const updateProfileSuccess = (updates) => ({
   type: UPDATE_PROFILE_SUCCESS,
   payload: updates
 });
+
+export const generateCode = () => ({
+  type: GEN_REFER_CODE
+})

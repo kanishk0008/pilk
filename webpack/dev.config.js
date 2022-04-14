@@ -58,6 +58,9 @@ module.exports = merge(baseConfig, {
       "process.env.RZP_KEY": JSON.stringify(
         process.env.RZP_KEY
       ),
+      "process.env.SHPRKT_TKN": JSON.stringify(
+        process.env.SHPRKT_TKN
+      ),
     }),
   ],
 });

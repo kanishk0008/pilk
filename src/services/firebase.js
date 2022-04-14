@@ -102,6 +102,68 @@ class Firebase {
         .catch((error) => reject(error));
     });
 
+    generateReferalCode = (code) => {
+      return new Promise((resolve, reject) => {
+        (async () => {
+          try {
+            var code = "REFERPILK"
+            if (this.auth.currentUser.displayName) {
+              code = this.auth.currentUser.displayName.split(" ")[0].toUpperCase() + "-PILK"
+            }
+            console.log("CODE " + code)
+            const query = this.db.collection("coupons")
+              .where("code",">=",code)
+              .where("code", "<", code + "1000");
+  
+            const snapshot = await query.get();
+            
+            if (snapshot.docs.length > 0) {
+              
+              const ref_query = this.db.collection("users").doc(this.auth.currentUser.uid);
+              console.log("CODE 2 " + snapshot.docs.length +" " + this.auth.currentUser.uid)
+              const snap = await ref_query.get();
+              console.log("CODE 2 snap " + snap.data()["referral_id"])
+              if(snap.data()["referral_id"] != undefined ) {
+                console.log("CODE 2 snap null")
+                resolve(null);
+              } else {
+                console.log("CODE 2 snap set code")
+                const coupon = {"code": code + snapshot.docs.length}
+                coupon["discount"] = 10
+                coupon["discount_type"]= "pc"
+                coupon["type"] = "user_referral"
+                coupon["user_id"] = this.auth.currentUser.uid
+                coupon["max_users"] = 5
+                coupon["referral_pc"] = 20
+                this.db.collection("coupons").add(coupon).then((docRef) => {
+                  this.db.collection("users").doc(this.auth.currentUser.uid)
+                  .update({"referral_id": docRef.id})
+                  resolve(coupon["code"]);
+                })
+              }
+            } else {
+              console.log("CODE 3 null")
+              const coupon = {"code": code}
+              coupon["discount"] = 10
+              coupon["discount_type"]= "pc"
+              coupon["type"] = "user_referral"
+              coupon["user_id"] = this.auth.currentUser.uid
+              coupon["max_users"] = 5
+              coupon["referral_pc"] = 20
+              this.db.collection("coupons").add(coupon).then((docRef) => {
+                this.db.collection("users").doc(this.auth.currentUser.uid)
+                .update({"referral_id": docRef.id})
+                resolve(coupon["code"]);
+              })
+              
+            }
+          } catch (e) {
+            reject(e?.message || ":( Failed to fetch coupon.");
+          }
+        })();
+      })
+    }
+
   reauthenticate = (currentPassword) => {
     const user = this.auth.currentUser;
     const cred = app.auth.EmailAuthProvider.credential(
@@ -192,10 +254,12 @@ class Firebase {
     return new Promise((resolve, reject) => {
       (async () => {
         try {
-          if(coupon["type"] == "single_use") {
+          if(coupon["type"] == "single_use" || coupon["type"] == "user_referral") {
             const query = this.db.collection("users").doc(this.auth.currentUser.uid).collection("coupons").doc(coupon["id"])
 
             const snapshot = await query.get();
+
+            console.log("COUPON " + coupon["code"])
 
             if (snapshot.exists) {
               const data = {"status": "invalid"}

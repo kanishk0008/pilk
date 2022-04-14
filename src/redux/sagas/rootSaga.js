@@ -35,7 +35,8 @@ function* rootSaga() {
   ], orderSaga);
   yield takeLatest([
     ACTION.UPDATE_EMAIL,
-    ACTION.UPDATE_PROFILE
+    ACTION.UPDATE_PROFILE,
+    ACTION.GEN_REFER_CODE
   ], profileSaga);
 }
 

@@ -52,7 +52,7 @@ const OrderItem = ({ order }) => {
             <span>{order.quantity || <Skeleton width={20} />}</span>
           </div>
           <div className="grid-col">
-            <span>{order.coupon || "--" }</span>
+            <span>{order.id || "--" }</span>
           </div>
         </div>
       </div>

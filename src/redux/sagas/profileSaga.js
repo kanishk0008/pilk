@@ -1,4 +1,4 @@
-import { UPDATE_EMAIL, UPDATE_PROFILE } from 'constants/constants';
+import { UPDATE_EMAIL, UPDATE_PROFILE, GEN_REFER_CODE } from 'constants/constants';
 import { ACCOUNT } from 'constants/routes';
 import { displayActionMessage } from 'helpers/utils';
 import { call, put, select } from 'redux-saga/effects';
@@ -17,6 +17,31 @@ function* profileSaga({ type, payload }) {
         yield put(setLoading(false));
         yield call(history.push, '/profile');
         yield call(displayActionMessage, 'Email Updated Successfully!', 'success');
+      } catch (e) {
+        console.log(e.message);
+      }
+      break;
+    }
+    case GEN_REFER_CODE : {
+      try {
+        console.log("GEN REFER CAODE")
+        yield put(setLoading(false));
+        const result = yield call(firebase.generateReferalCode);
+
+        if(result != null) {
+          // yield put(applyCouponSuccess({
+          //   ...result
+          // }));
+          console.log("GEN REFER CAODE not null")
+        } else {
+          // const result = {"error": "Invalid Coupon Code"}
+          // yield put(applyCouponSuccess({
+          //   ...result
+          // }));
+          console.log("GEN REFER CAODE null")
+        }
+
+        yield put(setLoading(false));
       } catch (e) {
         console.log(e.message);
       }

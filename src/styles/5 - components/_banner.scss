@@ -5,6 +5,7 @@
     // text-align: center;
     // vertical-align: middle;
     background-image: url("images/banner49.png");
+    // background-image: url("images/pilkoriginalbanner.png");
     background-size: cover; /* or contain depending on what you want */
     background-position: center center;
     background-repeat: no-repeat;
@@ -97,5 +98,54 @@
         height: 100%;
         object-fit: cover;
         transform: translateX(5rem)
+    }
+}
+
+.carousel-caption {
+    bottom : none;
+    top: 30%;
+    right:10%;
+    text-align: start;
+}
+
+.bannerr {
+    h1 {
+        font-size: 5.8rem;
+        margin-bottom: 1rem;
+        width: 80%;
+        // text-align: center;
+        color: #1a1a1a;
+
+        @include tablet {
+            width: 100%;
+            font-size: 3.5rem;
+            text-align: center;
+            margin: 0;
+        }
+    }
+
+    p {
+        font-size: 2.5rem;
+        color: #1a1a1a;
+        text-shadow: 0.6px 0.6px #1a1a1a;
+        @include tablet {
+            width: 100%;
+            font-size: 1.45rem;
+            text-align: center;
+        }
+    }
+
+    hr {
+        width: 50%;
+        color: #1a1a1a;
+        border-top: 1px solid rgb(26, 26, 26);
+    }
+
+    a {
+        width: 200px;
+
+        @include tablet {
+            margin-top: -15px;
+        }
     }
 }
