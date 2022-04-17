@@ -314,9 +314,9 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
               "name": prod.name,
               "sku": "Pilk Original " + order["quantity"],
               "units": order["quantity"],
-              "selling_price": payment_amount,
+              "selling_price": 49,
               "discount": "",
-              "tax": "",
+              "tax": 18,
               "hsn": 22029990
             }
           ],
@@ -325,7 +325,7 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
           "giftwrap_charges": 0,
           "transaction_charges": 0,
           "total_discount": 0,
-          "sub_total": 9000,
+          "sub_total": payment_amount,
           "length": 10,
           "breadth": 15,
           "height": 20,
