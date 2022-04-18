@@ -283,6 +283,20 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
             lname = shipping.fullname.split(' ')[1]
           }
 
+          
+          const defaultMeasurements = {
+            length: 11,
+            breadth: 11,
+            height: 14.5,
+            weight: 1,
+          };
+
+          const measurements = {
+            4: { length: 11, breadth: 11, height: 14.5, weight: 1 },
+            8: { length: 21.5, breadth: 11, height: 14.5, weight: 1.92 },
+            12: { length: 21.5, breadth: 16.5, height: 14.5, weight: 2.8 },
+          };
+
           const shprkt_body = { "order_id": data.id,
           "order_date": new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now()),
           "pickup_location": "Hermes Pickup",
@@ -326,10 +340,8 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
           "transaction_charges": 0,
           "total_discount": 0,
           "sub_total": payment_amount,
-          "length": 10,
-          "breadth": 15,
-          "height": 20,
-          "weight": 2.5}
+          ...(measurements[order["quantity"]] || defaultMeasurements)}
+          
           fetch("https://apiv2.shiprocket.in/v1/external/orders/create/adhoc", {
             method: 'post',
             headers: {
