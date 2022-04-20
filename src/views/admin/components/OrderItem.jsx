@@ -25,7 +25,7 @@ const OrderItem = ({ order }) => {
         className={`item item-products `}
         ref={productRef}
       >
-        <div className="grid grid-count-8">
+        <div className="grid grid-count-9">
           <div className="grid-col">
             <span>{order.name || <Skeleton width={30} />}</span>
           </div>
@@ -52,6 +52,9 @@ const OrderItem = ({ order }) => {
             <span>{order.quantity || <Skeleton width={20} />}</span>
           </div>
           <div className="grid-col">
+            <span>{order.quantity == order.total_quantity ? "f":"t"}</span>
+          </div>
+          <div className="grid-col">
             <span>{order.coupon || "--" }</span>
           </div>
         </div>
@@ -68,8 +71,9 @@ OrderItem.propTypes = {
     address: PropType.string,
     pincode: PropType.number,
     quantity: PropType.number,
+    total_quantity: PropType.number,
     phone: PropType.string,
-    code: PropType.string
+    coupon: PropType.string
   }).isRequired
 };
 

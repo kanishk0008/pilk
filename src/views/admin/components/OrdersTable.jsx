@@ -7,7 +7,7 @@ import { OrderItem } from '.';
 const OrdersTable = ({ filteredProducts }) => (
   <div>
     {filteredProducts.length > 0 && (
-      <div className="grid grid-product grid-count-8">
+      <div className="grid grid-product grid-count-9">
         
         <div className="grid-col">
           <h5>Name</h5>
@@ -29,6 +29,9 @@ const OrdersTable = ({ filteredProducts }) => (
         </div>
         <div className="grid-col">
           <h5>Qty</h5>
+        </div>
+        <div className="grid-col">
+          <h5>S</h5>
         </div>
         <div className="grid-col">
           <h5>Coupon</h5>
