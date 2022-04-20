@@ -19,12 +19,13 @@ exports.lowercaseProductName = functions.firestore
     return snap.ref.set({ name_lower: lowercaseName }, { merge: true });
   });
 
+let startOfTheDay = new Date().setHours(0, 0, 0, 0).valueOf();
+
 const getOrders = () =>
-  this.db
+  functions.firestore
     .collection("orders")
+    .where("fulfillment_ts", ">=", startOfTheDay)
     .orderBy("fulfillment_ts", "desc")
-    .startAt(Date.now())
-    .limit(100)
     .get();
 
 const defaultMeasurements = {
@@ -42,18 +43,13 @@ const measurements = {
 
 //call shiprocket function from firebase scheduled function
 exports.checkOrderScheduled = functions.pubsub
-  .schedule("0 8 * * *")
+  .schedule("* * * * *") // (every minute)
   .onRun((context) => {
-    const orders = getOrders().then((orders) =>
+    const todayOrders = getOrders().then((orders) =>
       orders.map((order) => ({ id: order.id, ...order.data() }))
     );
 
-    const todayOrders = [];
-    orders.forEach((order) => {
-      if (order.fulfillment_ts.toDate().getDate() === new Date().getDate()) {
-        todayOrders.push(order);
-      }
-    });
+    console.log("todayOrders", todayOrders);
 
     if (todayOrders.length > 0) {
       todayOrders.forEach((order) => {
