@@ -50,6 +50,12 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
   const twntDayInterval = tenDayInterval * 2
   const twnt1DayInterval = sevenDayInterval * 3
 
+  const measurements = {
+    4: { length: 11, breadth: 11, height: 14.5, weight: 1 },
+    8: { length: 21.5, breadth: 11, height: 14.5, weight: 1.92 },
+    12: { length: 21.5, breadth: 16.5, height: 14.5, weight: 2.8 },
+  };
+
   var prod;
 
   basket.map((product) => {
@@ -98,8 +104,6 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
     const url = "https://us-central1-"+projectId+".cloudfunctions.net/rzp-create-order";
     
     const body = {'amount': payment_amount}
-
-    console.log("BYPAS PAYMNT " + bypasPayment + " " + coupon["code"])
 
     if (bypasPayment) {
       const order = {"payment_id": "100xpayment"}
@@ -183,7 +187,7 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
 
           history.push(ORDER_STATUS)
     } else {
-
+      console.log("calling rzp")
     fetch(url, {
       method: 'post',
       headers: {
@@ -209,6 +213,10 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
           order["name"] = shipping.fullname
           order["email"] = shipping.email
           order["address"] = shipping.flat + ", " + shipping.area + ", " + shipping.city + ", " + shipping.state
+          order["flat"] = shipping.flat 
+          order["area"] = shipping.area
+          order["city"] =  shipping.city 
+          order["state"] =  shipping.state
           order["pincode"] = shipping.pincode
           order["phone"] = "+"+shipping.mobile.value
           order["product_id"] = prod.id
@@ -298,7 +306,7 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
           };
 
           const shprkt_body = { "order_id": data.id,
-          "order_date": new Intl.DateTimeFormat('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(Date.now()),
+          "order_date": new Date().toISOString().replace(/T.*/,'').split('-').reverse().join('-'),
           "pickup_location": "Hermes Pickup",
           "channel_id": "",
           "comment": "Website Order",
@@ -311,7 +319,7 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
           "billing_state": shipping.state,
           "billing_country": "India",
           "billing_email": shipping.email,
-          "billing_phone": "9876543210",
+          "billing_phone": shipping.mobile.value.substring(2,12),
           "shipping_is_billing": true,
           "shipping_customer_name": "",
           "shipping_last_name": "",
@@ -339,23 +347,25 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
           "giftwrap_charges": 0,
           "transaction_charges": 0,
           "total_discount": 0,
-          "sub_total": payment_amount,
-          ...(measurements[order["quantity"]] || defaultMeasurements)}
-          
+          "sub_total": payment_amount/100,
+          ...measurements[order["quantity"]]
+        }
+
+        console.log("SHIPROCKET BODY " + shprkt_body)
           fetch("https://apiv2.shiprocket.in/v1/external/orders/create/adhoc", {
             method: 'post',
             headers: {
               "Content-type": "application/json; charset=UTF-8",
               "Authorization": "Bearer " + process.env.SHPRKT_TKN
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify(shprkt_body)
           })
           .then(resp =>  resp.json())
           .then(function (data) {
-
+            console.log('Request success', data);
           })
           .catch(function (error) {
-            console.log('Request failed', error);
+            console.log('ship rocket Request failed', error);
           });
 
           dispatch(createOrder(order));

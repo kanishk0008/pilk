@@ -172,9 +172,9 @@ const ShippingDetails = ({ profile, shipping, subtotal }) => {
           </Formik>
         </div>
       </div>
-      <Modal show={show} centered onHide={handleClose} className="text-center" >
+      <Modal show={show} centered onHide={handleClose} className="text-center amazon-modal" >
         <Modal.Header closeButton className="text-center">
-          <Modal.Title><h3>Thanks for reaching here but we are not yet available at your location. <br/> Alternatively, you can try placing your order from : </h3></Modal.Title>
+          <Modal.Title><h3>Thanks for reaching here but we are not yet available at your location. <br/><br/> Alternatively, you can try placing your order from : <br/> <a href='https://amzn.to/3xGnQZg' target="_blank"><strong>Amazon</strong></a></h3></Modal.Title>
         </Modal.Header>
       </Modal>
     </Boundary>

@@ -220,6 +220,10 @@ class Firebase {
       .limit(100)
       .get();
 
+      // .orderBy("fulfillment_ts", "desc")
+      // .startAt(Date.now())
+      // .limit(100)
+
   getCheckouts = () => this.db
       .collection("checkouts")
       .orderBy("created_date", "desc")
