@@ -177,6 +177,76 @@ const Payment = ({ basket, shipping, payment, subtotal }) => {
             value: 5
           })
 
+          const fname = shipping.fullname.split(' ')[0]
+
+          var lname = "."
+          if (shipping.fullname.split(' ').count > 0) {
+            lname = shipping.fullname.split(' ')[1]
+          }
+
+          const shprkt_body = { "order_id": data.id,
+          "order_date": new Date().toISOString().replace(/T.*/,'').split('-').reverse().join('-'),
+          "pickup_location": "Hermes Pickup",
+          "channel_id": "",
+          "comment": "Website Order",
+          "billing_customer_name": fname,
+          "billing_last_name": lname,
+          "billing_address": shipping.flat,
+          "billing_address_2": shipping.area,
+          "billing_city": shipping.city,
+          "billing_pincode": shipping.pincode,
+          "billing_state": shipping.state,
+          "billing_country": "India",
+          "billing_email": shipping.email,
+          "billing_phone": shipping.mobile.value.substring(2,12),
+          "shipping_is_billing": true,
+          "shipping_customer_name": "",
+          "shipping_last_name": "",
+          "shipping_address": "",
+          "shipping_address_2": "",
+          "shipping_city": "",
+          "shipping_pincode": "",
+          "shipping_country": "",
+          "shipping_state": "",
+          "shipping_email": "",
+          "shipping_phone": "",
+          "order_items": [
+            {
+              "name": prod.name,
+              "sku": "Pilk Original " + order["quantity"],
+              "units": order["quantity"],
+              "selling_price": 49,
+              "discount": "",
+              "tax": 18,
+              "hsn": 22029990
+            }
+          ],
+          "payment_method": "Prepaid",
+          "shipping_charges": 0,
+          "giftwrap_charges": 0,
+          "transaction_charges": 0,
+          "total_discount": 0,
+          "sub_total": payment_amount/100,
+          ...measurements[order["quantity"]]
+        }
+
+        console.log("SHIPROCKET BODY " + shprkt_body)
+          fetch("https://apiv2.shiprocket.in/v1/external/orders/create/adhoc", {
+            method: 'post',
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+              "Authorization": "Bearer " + process.env.SHPRKT_TKN
+            },
+            body: JSON.stringify(shprkt_body)
+          })
+          .then(resp =>  resp.json())
+          .then(function (data) {
+            console.log('Request success', data);
+          })
+          .catch(function (error) {
+            console.log('ship rocket Request failed', error);
+          });
+
           dispatch(createOrder(order));
           dispatch(confirmOrder(order))
           dispatch(sendEmail(mail))

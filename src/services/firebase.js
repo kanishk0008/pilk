@@ -220,9 +220,33 @@ class Firebase {
       .limit(100)
       .get();
 
+  getDateOrders = (ts1, ts2) => this.db
+      .collection("orders")
+      .where("created_date", ">=" , ts1)
+      .where("created_date", "<=" , ts2)
+      .orderBy("created_date", "desc")
+      .get();
+
+  // getOrders = (ts1, ts2) => this.db
+  //     .collection("orders")
+  //     .where("fulfillment_ts", ">=" , ts1)
+  //     .where("fulfillment_ts", "<=" , ts2)
+  //     .orderBy("fulfillment_ts", "desc")
+  //     .startAt(Date.now())
+  //     .limit(100)
+  //     .get();
+
       // .orderBy("fulfillment_ts", "desc")
       // .startAt(Date.now())
       // .limit(100)
+
+  getSubsOrders = () => this.db
+      .collection("orders")
+      .where("total_quantity","==", 36)
+      .orderBy("fulfillment_ts", "desc")
+      .startAt(Date.now())
+      .limit(100)
+      .get();
 
   getCheckouts = () => this.db
       .collection("checkouts")
