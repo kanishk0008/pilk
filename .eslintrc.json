@@ -36,6 +36,14 @@
                 "functions": "ignore"
             }
         ],
+        "quotes": [
+            "error",
+            "double"
+        ],
+        "linebreak-style": [
+            "error",
+            "windows"
+        ],
         "no-console": 0
     },
     "settings": {
