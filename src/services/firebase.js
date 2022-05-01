@@ -3,9 +3,10 @@ import "firebase/auth";
 import "firebase/firestore";
 import "firebase/storage";
 import firebaseConfig from "./config";
-import React , { useEffect, useState, useRef } from 'react';
-import defaultAvatar from 'images/defaultAvatar.png';
-import defaultBanner from 'images/defaultBanner.jpg';
+import React, { useEffect, useState, useRef } from "react";
+import defaultAvatar from "images/defaultAvatar.png";
+import defaultBanner from "images/defaultBanner.jpg";
+import { shprktAxios } from "helpers/utils";
 
 class Firebase {
   constructor() {
@@ -19,52 +20,58 @@ class Firebase {
   // AUTH ACTIONS ------------
 
   createAccount = (email, password, fullname) => {
-    console.log("FIREBASE AUTH")
-          this.auth.createUserWithEmailAndPassword(email , password)
-          .then((userCredential)=>{
-              // send verification mail.
-            userCredential.user.sendEmailVerification();
-            
-            // auth.signOut();
-            alert("Verification Email sent");
-            console.log("USER ID " + userCredential.user.uid + " " + userCredential.uid)
-            // resolve(userCredential.user.uid)
-            const fname = fullname.split(' ').map((name) => name[0].toUpperCase().concat(name.substring(1))).join(' ');
-            const user = {
-              fname,
-              avatar: defaultAvatar,
-              banner: defaultBanner,
-              email: email,
-              address: '',
-              basket: [],
-              mobile: { data: {} },
-              role: 'USER',
-              dateJoined: new Date().getTime(),
-            };
-            this.addUser(userCredential.user.uid, user)
-          })
-          .catch(alert);
-        
-  }
+    console.log("FIREBASE AUTH");
+    this.auth
+      .createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        // send verification mail.
+        userCredential.user.sendEmailVerification();
+
+        // auth.signOut();
+        alert("Verification Email sent");
+        console.log(
+          "USER ID " + userCredential.user.uid + " " + userCredential.uid
+        );
+        // resolve(userCredential.user.uid)
+        const fname = fullname
+          .split(" ")
+          .map((name) => name[0].toUpperCase().concat(name.substring(1)))
+          .join(" ");
+        const user = {
+          fname,
+          avatar: defaultAvatar,
+          banner: defaultBanner,
+          email: email,
+          address: "",
+          basket: [],
+          mobile: { data: {} },
+          role: "USER",
+          dateJoined: new Date().getTime(),
+        };
+        this.addUser(userCredential.user.uid, user);
+      })
+      .catch(alert);
+  };
 
   signIn = (email, password) => {
-    console.log("FIREBASE SIGNIN")
-    
-    this.auth.signInWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      // Signed in
-      var user = userCredential.user;
-      console.log("FIREBASE SIGNIN "  + user + " " + user.emailVerified)
-      // ...
-    })
-    .catch((error) => {
-      var errorCode = error.code;
-      var errorMessage = error.message;
-      alert(errorMessage);
-      reject(error)
-      console.log("FIREBASE SIGNIN "  + errorCode + " " + errorMessage)
-    });;
-  }
+    console.log("FIREBASE SIGNIN");
+
+    this.auth
+      .signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        // Signed in
+        var user = userCredential.user;
+        console.log("FIREBASE SIGNIN " + user + " " + user.emailVerified);
+        // ...
+      })
+      .catch((error) => {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        alert(errorMessage);
+        reject(error);
+        console.log("FIREBASE SIGNIN " + errorCode + " " + errorMessage);
+      });
+  };
 
   signInWithGoogle = () =>
     this.auth.signInWithPopup(new app.auth.GoogleAuthProvider());
@@ -79,9 +86,10 @@ class Firebase {
 
   passwordReset = (email) => this.auth.sendPasswordResetEmail(email);
 
-  addUser = (id, user) => { 
+  addUser = (id, user) => {
     console.log("ADDUSER " + id);
-    this.db.collection("users").doc(id).set(user); }
+    this.db.collection("users").doc(id).set(user);
+  };
 
   getUser = (id) => this.db.collection("users").doc(id).get();
 
@@ -102,67 +110,82 @@ class Firebase {
         .catch((error) => reject(error));
     });
 
-    generateReferalCode = (code) => {
-      return new Promise((resolve, reject) => {
-        (async () => {
-          try {
-            var code = "REFERPILK"
-            if (this.auth.currentUser.displayName) {
-              code = this.auth.currentUser.displayName.split(" ")[0].toUpperCase() + "-PILK"
-            }
-            console.log("CODE " + code)
-            const query = this.db.collection("coupons")
-              .where("code",">=",code)
-              .where("code", "<", code + "1000");
-  
-            const snapshot = await query.get();
-            
-            if (snapshot.docs.length > 0) {
-              
-              const ref_query = this.db.collection("users").doc(this.auth.currentUser.uid);
-              console.log("CODE 2 " + snapshot.docs.length +" " + this.auth.currentUser.uid)
-              const snap = await ref_query.get();
-              console.log("CODE 2 snap " + snap.data()["referral_id"])
-              if(snap.data()["referral_id"] != undefined ) {
-                console.log("CODE 2 snap null")
-                resolve(null);
-              } else {
-                console.log("CODE 2 snap set code")
-                const coupon = {"code": code + snapshot.docs.length}
-                coupon["discount"] = 10
-                coupon["discount_type"]= "pc"
-                coupon["type"] = "user_referral"
-                coupon["user_id"] = this.auth.currentUser.uid
-                coupon["max_users"] = 5
-                coupon["referral_pc"] = 20
-                this.db.collection("coupons").add(coupon).then((docRef) => {
-                  this.db.collection("users").doc(this.auth.currentUser.uid)
-                  .update({"referral_id": docRef.id})
-                  resolve(coupon["code"]);
-                })
-              }
-            } else {
-              console.log("CODE 3 null")
-              const coupon = {"code": code}
-              coupon["discount"] = 10
-              coupon["discount_type"]= "pc"
-              coupon["type"] = "user_referral"
-              coupon["user_id"] = this.auth.currentUser.uid
-              coupon["max_users"] = 5
-              coupon["referral_pc"] = 20
-              this.db.collection("coupons").add(coupon).then((docRef) => {
-                this.db.collection("users").doc(this.auth.currentUser.uid)
-                .update({"referral_id": docRef.id})
-                resolve(coupon["code"]);
-              })
-              
-            }
-          } catch (e) {
-            reject(e?.message || ":( Failed to fetch coupon.");
+  generateReferalCode = (code) => {
+    return new Promise((resolve, reject) => {
+      (async () => {
+        try {
+          var code = "REFERPILK";
+          if (this.auth.currentUser.displayName) {
+            code =
+              this.auth.currentUser.displayName.split(" ")[0].toUpperCase() +
+              "-PILK";
           }
-        })();
-      })
-    }
+          console.log("CODE " + code);
+          const query = this.db
+            .collection("coupons")
+            .where("code", ">=", code)
+            .where("code", "<", code + "1000");
+
+          const snapshot = await query.get();
+
+          if (snapshot.docs.length > 0) {
+            const ref_query = this.db
+              .collection("users")
+              .doc(this.auth.currentUser.uid);
+            console.log(
+              "CODE 2 " + snapshot.docs.length + " " + this.auth.currentUser.uid
+            );
+            const snap = await ref_query.get();
+            console.log("CODE 2 snap " + snap.data()["referral_id"]);
+            if (snap.data()["referral_id"] != undefined) {
+              console.log("CODE 2 snap null");
+              resolve(null);
+            } else {
+              console.log("CODE 2 snap set code");
+              const coupon = { code: code + snapshot.docs.length };
+              coupon["discount"] = 10;
+              coupon["discount_type"] = "pc";
+              coupon["type"] = "user_referral";
+              coupon["user_id"] = this.auth.currentUser.uid;
+              coupon["max_users"] = 5;
+              coupon["referral_pc"] = 20;
+              this.db
+                .collection("coupons")
+                .add(coupon)
+                .then((docRef) => {
+                  this.db
+                    .collection("users")
+                    .doc(this.auth.currentUser.uid)
+                    .update({ referral_id: docRef.id });
+                  resolve(coupon["code"]);
+                });
+            }
+          } else {
+            console.log("CODE 3 null");
+            const coupon = { code: code };
+            coupon["discount"] = 10;
+            coupon["discount_type"] = "pc";
+            coupon["type"] = "user_referral";
+            coupon["user_id"] = this.auth.currentUser.uid;
+            coupon["max_users"] = 5;
+            coupon["referral_pc"] = 20;
+            this.db
+              .collection("coupons")
+              .add(coupon)
+              .then((docRef) => {
+                this.db
+                  .collection("users")
+                  .doc(this.auth.currentUser.uid)
+                  .update({ referral_id: docRef.id });
+                resolve(coupon["code"]);
+              });
+          }
+        } catch (e) {
+          reject(e?.message || ":( Failed to fetch coupon.");
+        }
+      })();
+    });
+  };
 
   reauthenticate = (currentPassword) => {
     const user = this.auth.currentUser;
@@ -213,18 +236,20 @@ class Firebase {
 
   getSingleProduct = (id) => this.db.collection("products").doc(id).get();
 
-  getOrders = () => this.db
+  getOrders = () =>
+    this.db
       .collection("orders")
       .orderBy("fulfillment_ts", "desc")
       .startAt(Date.now())
       .limit(100)
       .get();
 
-      // .orderBy("fulfillment_ts", "desc")
-      // .startAt(Date.now())
-      // .limit(100)
+  // .orderBy("fulfillment_ts", "desc")
+  // .startAt(Date.now())
+  // .limit(100)
 
-  getCheckouts = () => this.db
+  getCheckouts = () =>
+    this.db
       .collection("checkouts")
       .orderBy("created_date", "desc")
       .startAt(Date.now())
@@ -235,14 +260,17 @@ class Firebase {
     return new Promise((resolve, reject) => {
       (async () => {
         try {
-          
-          const query = this.db.collection("coupons")
-            .where("code","==",code["code"]);
+          const query = this.db
+            .collection("coupons")
+            .where("code", "==", code["code"]);
 
           const snapshot = await query.get();
 
           if (snapshot.docs.length > 0) {
-            const data = { ...snapshot.docs[0].data(), id: snapshot.docs[0].id };
+            const data = {
+              ...snapshot.docs[0].data(),
+              id: snapshot.docs[0].id,
+            };
             resolve(data);
           } else {
             resolve(null);
@@ -251,42 +279,69 @@ class Firebase {
           reject(e?.message || ":( Failed to fetch coupon.");
         }
       })();
-    })
-  }
+    });
+  };
 
   checkValidCoupon = (coupon) => {
     return new Promise((resolve, reject) => {
       (async () => {
         try {
-          if(coupon["type"] == "single_use" || coupon["type"] == "user_referral") {
-            const query = this.db.collection("users").doc(this.auth.currentUser.uid).collection("coupons").doc(coupon["id"])
+          if (
+            coupon["type"] == "single_use" ||
+            coupon["type"] == "user_referral"
+          ) {
+            const query = this.db
+              .collection("users")
+              .doc(this.auth.currentUser.uid)
+              .collection("coupons")
+              .doc(coupon["id"]);
 
             const snapshot = await query.get();
 
-            console.log("COUPON " + coupon["code"])
+            console.log("COUPON " + coupon["code"]);
 
             if (snapshot.exists) {
-              const data = {"status": "invalid"}
+              const data = { status: "invalid" };
               resolve(data);
             } else {
-              const data = {"status": "valid"}
+              const data = { status: "valid" };
               resolve(data);
             }
           } else if (coupon["type"] == "diet_referral") {
-            const data = {"status": "valid"}
+            const data = { status: "valid" };
             resolve(data);
           }
         } catch (e) {
           reject(e?.message || ":( Failed to fetch coupon.");
         }
       })();
-    })
-  }
+    });
+  };
 
   setCouponForUser = (id, coupon) => {
-    this.db.collection("users").doc(this.auth.currentUser.uid).collection("coupons").doc(id).set(coupon)
-  }
+    this.db
+      .collection("users")
+      .doc(this.auth.currentUser.uid)
+      .collection("coupons")
+      .doc(id)
+      .set(coupon);
+  };
 
+  getShipRocketToken = () => {
+    (async () => {
+      await this.db
+        .collection("shiprocket")
+        .doc("token")
+        .get()
+        .then((doc) => {
+          console.log("doc", doc);
+          if (doc.exists) {
+            const { token } = doc.data();
+            shprktAxios.defaults.headers.common.Authorization = `Bearer ${token}`;
+          }
+        });
+    })();
+  };
   // applyCoupon = async (code) => {
   //   const query = this.db.collection("coupons")
   //           .where("code","==",code);
@@ -302,9 +357,6 @@ class Firebase {
   //         }
 
   // };
-
-
-  
 
   getProducts = (lastRefKey) => {
     let didTimeout = false;
@@ -323,9 +375,8 @@ class Firebase {
             const products = [];
             snapshot.forEach((doc) =>
               products.push({ id: doc.id, ...doc.data() })
-              
             );
-            
+
             const lastKey = snapshot.docs[snapshot.docs.length - 1];
 
             resolve({ products, lastKey });
@@ -451,11 +502,9 @@ class Firebase {
   addProduct = (id, product) =>
     this.db.collection("products").doc(id).set(product);
 
-
   dupProduct = (product) => {
-		this.db.collection("products").doc("pilk-original").set(product)
-  }
-
+    this.db.collection("products").doc("pilk-original").set(product);
+  };
 
   generateKey = () => this.db.collection("products").doc().id;
 
@@ -476,23 +525,31 @@ class Firebase {
   // -- Order Actions -- //
 
   createCheckout = (id, order) =>
-    this.db.collection("checkouts").doc(id).set(order)
+    this.db.collection("checkouts").doc(id).set(order);
 
   createOrder = (id, order) => {
-    this.db.collection("orders").doc(id).set(order)
+    this.db.collection("orders").doc(id).set(order);
 
-    if(this.auth.currentUser) {
-      this.db.collection("users").doc(this.auth.currentUser.uid).collection("orders").doc(id).set(order)
+    if (this.auth.currentUser) {
+      this.db
+        .collection("users")
+        .doc(this.auth.currentUser.uid)
+        .collection("orders")
+        .doc(id)
+        .set(order);
     }
-  }
+  };
 
   setOrderForUser = (id, userId, order) => {
-    this.db.collection("users").doc(userId).collection("orders").doc(id).set(order)
-  }
+    this.db
+      .collection("users")
+      .doc(userId)
+      .collection("orders")
+      .doc(id)
+      .set(order);
+  };
 
-  sendEmail = (id, mail) =>
-    this.db.collection("mail").doc(id).set(mail)
-
+  sendEmail = (id, mail) => this.db.collection("mail").doc(id).set(mail);
 }
 
 const firebaseInstance = new Firebase();

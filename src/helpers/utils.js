@@ -1,6 +1,8 @@
 import axios from "axios";
+import firebaseInstance from "services/firebase";
 
-const shprkt_axios = axios.create();
+export const shprktAxios = axios.create();
+firebaseInstance.getShipRocketToken();
 
 /* eslint-disable no-nested-ternary */
 export const displayDate = (timestamp) => {
@@ -79,33 +81,33 @@ export const displayActionMessage = (msg, status = "info") => {
   }, 3000);
 };
 
-export async function loginToShiprocket() {
-  await shprkt_axios
-    .post(
-      "https://apiv2.shiprocket.in/v1/external/auth/login",
-      {
-        email: "info@pilk.in",
-        password: "Vsplpilk@2022",
-      },
-      {
-        headers: {
-          Authorization: "",
-        },
-      }
-    )
-    .then((response) => {
-      const { token } = response.data;
-      shprkt_axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-      console.log("token", token);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-}
+// export async function loginToShiprocket() {
+//   await shprktAxios
+//     .post(
+//       "https://apiv2.shiprocket.in/v1/external/auth/login",
+//       {
+//         email: "info@pilk.in",
+//         password: "Vsplpilk@2022",
+//       },
+//       {
+//         headers: {
+//           Authorization: "",
+//         },
+//       }
+//     )
+//     .then((response) => {
+//       const { token } = response.data;
+//       shprktAxios.defaults.headers.common.Authorization = `Bearer ${token}`;
+//       console.log("token", token);
+//     })
+//     .catch((error) => {
+//       console.log(error);
+//     });
+// }
 
 export async function shprktHttp(method, url, data, isRetry = false) {
   return new Promise((resolve, reject) => {
-    shprkt_axios({
+    shprktAxios({
       method,
       url,
       data,
@@ -115,8 +117,7 @@ export async function shprktHttp(method, url, data, isRetry = false) {
       })
       .catch((err) => {
         if (err.response.status === 401 && !isRetry) {
-          loginToShiprocket();
-          const retry = http(method, url, data, true);
+          const retry = shprktHttp(method, url, data, true);
           resolve(retry);
         } else {
           reject(err.response);

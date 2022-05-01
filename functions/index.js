@@ -4,6 +4,71 @@ const { default: axios } = require("axios");
 
 admin.initializeApp();
 
+//get token from firestore
+const getToken = async () => {
+  return admin
+    .firestore()
+    .collection("shiprocket")
+    .doc("token")
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        return doc.data().token;
+      } else {
+        return "";
+      }
+    });
+};
+
+const token = getToken();
+axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+async function loginToShiprocket() {
+  await axios
+    .post(
+      "https://apiv2.shiprocket.in/v1/external/auth/login",
+      {
+        email: "info@pilk.in",
+        password: "Vsplpilk@2022",
+      },
+      {
+        headers: {
+          Authorization: "",
+        },
+      }
+    )
+    .then((response) => {
+      const token = response.data.token;
+      admin.firestore().collection("shiprocket").doc("token").set({ token });
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+
+function http(method, url, data) {
+  return new Promise((resolve, reject) => {
+    axios({
+      method,
+      url,
+      data,
+    })
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        if (err.response.status === 401) {
+          loginToShiprocket();
+          const retry = http(method, url, data);
+          resolve(retry);
+        } else {
+          reject(err.response);
+        }
+      });
+  });
+}
+
 exports.lowercaseProductName = functions.firestore
   .document("/products/{documentId}")
   .onCreate((snap, context) => {
@@ -34,6 +99,7 @@ const getOrders = () => {
     .where("fulfillment_ts", "<=", endOfTheDay)
     .orderBy("fulfillment_ts", "desc")
     .get();
+  navigator;
 };
 
 const defaultMeasurements = {
@@ -46,12 +112,6 @@ const defaultMeasurements = {
 const differenceInTs = (ts1, ts2, days = 7) => {
   return Math.abs(ts1 - ts2) >= days * dayInMilliseconds;
 };
-
-// const measurements = {
-//   4: { length: 11, breadth: 11, height: 14.5, weight: 1 },
-//   8: { length: 21.5, breadth: 11, height: 14.5, weight: 1.92 },
-//   12: { length: 21.5, breadth: 16.5, height: 14.5, weight: 2.8 },
-// };
 
 //call shiprocket function from firebase scheduled function
 exports.checkOrderScheduled = functions.pubsub
@@ -73,7 +133,7 @@ exports.checkOrderScheduled = functions.pubsub
         console.log("todayOrders::", todayOrders.length);
         if (todayOrders.length > 0) {
           todayOrders.forEach((order) => {
-            const { total_quantity, created_date } = order;
+            const { total_quantity, created_date, fulfillment_ts } = order;
             if (
               !(fulfillment_ts <= endOfTheDay) ||
               !differenceInTs(fulfillment_ts, created_date, 7) ||
@@ -93,12 +153,13 @@ exports.checkOrderScheduled = functions.pubsub
               phone,
               product_name,
             } = order;
+            console.log("Order-Id::", orderId);
             const [fname = "", lname = ""] = name.split(" ");
             const fullAddress = address.split(",");
             const state = fullAddress.pop() || "";
             const city = fullAddress.pop() || "";
             let [add1 = "", ...add2] = fullAddress;
-            const mobile = phone.slice(2);
+            const mobile = phone.slice(3);
             add2 = add2.join(",");
 
             const shprkt_body = {
@@ -155,18 +216,11 @@ exports.checkOrderScheduled = functions.pubsub
               ...defaultMeasurements,
             };
 
-            axios
-              .post(
-                "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc",
-                shprkt_body,
-                {
-                  headers: {
-                    "Content-type": "application/json; charset=UTF-8",
-                    Authorization:
-                      "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjI0OTE2NDAsImlzcyI6Imh0dHBzOi8vYXBpdjIuc2hpcHJvY2tldC5pbi92MS9leHRlcm5hbC9hdXRoL2xvZ2luIiwiaWF0IjoxNjQ5Nzg1MzA3LCJleHAiOjE2NTA2NDkzMDcsIm5iZiI6MTY0OTc4NTMwNywianRpIjoibGQzWmFxdjFncTlONVcwbCJ9.GiA3UCRR7CjA8iViVeM-3v5PFVPePuJGP6lPFJFbKh8",
-                  },
-                }
-              )
+            http(
+              "POST",
+              "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc",
+              shprkt_body
+            )
               .then((resp) => console.log("response-->", resp.data))
               // .then(function (data) {})
               .catch(function (error) {
@@ -179,5 +233,13 @@ exports.checkOrderScheduled = functions.pubsub
         functions.logger.log("Error getting orders", error);
       });
 
+    return 0;
+  });
+
+exports.generateShiprocketToken = functions.pubsub
+  .schedule("0 0 * * 1") // Every Monday at 12:00 AM
+  .timeZone("Asia/Kolkata")
+  .onRun((context) => {
+    loginToShiprocket();
     return 0;
   });
