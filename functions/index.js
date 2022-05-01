@@ -20,9 +20,6 @@ const getToken = async () => {
     });
 };
 
-const token = getToken();
-axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
 async function loginToShiprocket() {
   await axios
     .post(
@@ -118,6 +115,8 @@ exports.checkOrderScheduled = functions.pubsub
   .schedule("0 11 * * *") // 11:00 AM
   .timeZone("Asia/Kolkata")
   .onRun((context) => {
+    const token = getToken();
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     getOrders()
       .then((orderSnapshot) => {
         let todayOrders = [];
